@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Head Up 7 Up</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fce4ec; /* Light pink background */
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #e91e63; /* Strong pink header */
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 36px;
+            margin: 0;
+        }
+
+        p {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+
+        .game-container {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .settings {
+            margin-bottom: 20px;
+        }
+
+        .settings label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .settings input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #f06292; /* Soft pink border */
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .category-buttons button {
+            padding: 10px 20px;
+            margin: 5px;
+            background-color: #f06292; /* Soft pink button */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .category-buttons button:hover {
+            background-color: #ec407a; /* Darker pink on hover */
+        }
+
+        .card {
+            font-size: 24px;
+            padding: 20px;
+            margin-top: 20px;
+            background-color: #f8bbd0; /* Light pink card */
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            color: #ad1457; /* Dark pink text */
+        }
+
+        #timer, #score {
+            font-size: 18px;
+            margin-top: 10px;
+            font-weight: bold;
+            color: #ad1457; /* Dark pink text */
+        }
+
+        .controls button {
+            padding: 10px 20px;
+            margin: 5px;
+            background-color: #f48fb1; /* Lighter pink button */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .controls button:hover {
+            background-color: #ec407a; /* Darker pink on hover */
+        }
+
+        #used-cards {
+            font-size: 16px;
+            margin-top: 20px;
+            color: #ad1457; /* Dark pink text */
+        }
+
+        button:focus {
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Head Up 7 Up</h1>
+        <p>Select a category, then start the game!</p>
+    </header>
+    <div class="game-container">
+        <div class="settings">
+            <label for="team1">Team 1 Name:</label>
+            <input type="text" id="team1" placeholder="Enter Team 1 Name">
+            <label for="team2">Team 2 Name:</label>
+            <input type="text" id="team2" placeholder="Enter Team 2 Name">
+            <br>
+            <label for="custom-time">Set Timer (seconds):</label>
+            <input type="number" id="custom-time" value="60">
+            <br>
+            <button onclick="startCustomTimer()">Set Timer</button>
+        </div>
+        <div class="category-buttons">
+            <button onclick="selectCategory('Bad Girls Club')">Bad Girls Club</button>
+            <button onclick="selectCategory('Rappers')">Rappers</button>
+            <button onclick="selectCategory('America')">America</button>
+            <button onclick="selectCategory('Europe')">Europe</button>
+            <button onclick="selectCategory('Africa')">Africa</button>
+            <button onclick="selectCategory('Animals')">Animals</button>
+            <button onclick="selectCategory('Food')">Food</button>
+            <button onclick="selectCategory('Companies')">Companies</button>
+            <button onclick="selectCategory('K-Pop')">K-Pop</button>
+            <button onclick="selectCategory('K-Pop Boy Groups')">K-Pop Boy Groups</button>
+            <button onclick="selectCategory('K-Pop Girls')">K-Pop Girls</button>
+            <button onclick="selectCategory('Actors')">Actors</button>
+          
+        </div>
+        <div id="selected-category" style="margin: 10px; font-size: 18px;">
+            Selected Category: <span id="category-name">None</span>
+        </div>
+        <button onclick="startGame()">Start Game</button>
+        <div class="card" id="card">Your card will appear here!</div>
+        <div id="timer">Time Left: <span id="time">60</span> seconds</div>
+        <div id="score">
+            Team 1 Score: <span id="team1-points">0</span> | Team 2 Score: <span id="team2-points">0</span>
+        </div>
+        <div class="controls">
+            <button onclick="passCard('team1')">Team 1 Pass</button>
+            <button onclick="passCard('team2')">Team 2 Pass</button>
+            <button onclick="failCard()">Fail</button>
+        </div>
+        <button onclick="resetRound()">Reset Round</button>
+
+        <!-- List of cards used in the round -->
+        <div id="used-cards" style="margin-top: 20px;"></div>
+    </div>
+
+    <script>
+        const cards = {
+            "K-Pop": [
+                "H.O.T.", "Sechs Kies", "S.E.S.", "Fin.K.L.", "Shinhwa", "Baby V.O.X.", "G.O.D.", "1TYM", "Click-B", "NRG",
+                "TVXQ (DBSK)", "Super Junior", "BIGBANG", "Girls' Generation (SNSD)", "Wonder Girls", "KARA", "SHINee", "2PM", "2AM", "T-ARA",
+                "4Minute", "f(x)", "INFINITE", "Teen Top", "SISTAR", "MBLAQ", "U-KISS", "After School", "Brown Eyed Girls", "Secret",
+                "BTS", "EXO", "BLACKPINK", "TWICE", "Red Velvet", "SEVENTEEN", "GOT7", "MONSTA X", "GFRIEND", "Mamamoo", "WINNER", "iKON",
+                "ASTRO", "NCT 127", "NCT DREAM", "WJSN (Cosmic Girls)", "Apink", "BTOB", "VIXX", "Lovelyz",
+                "ITZY", "TXT (Tomorrow X Together)", "Stray Kids", "ATEEZ", "ENHYPEN", "IVE", "Kep1er", "LE SSERAFIM", "NewJeans", "(G)I-DLE",
+                "TREASURE", "CRAVITY", "STAYC", "EVERGLOW", "Weeekly", "aespa", "P1Harmony", "XG", "TNX", "ZEROBASEONE",
+                "KARD", "Triple H", "AKMU (Akdong Musician)", "Co-Ed School", "Davichi", "Wanna One", "I.O.I", "IZ*ONE", "X1",
+                "Produce X 101 groups", "fromis_9", "Girls Planet 999 groups", "Dreamcatcher", "LOONA", "Cherry Bullet", "CIX", "WEi", "ONEUS",
+                "Rocket Punch", "PIXY", "Pristin", "Miss A", "Rainbow", "9MUSES", "Spica", "FIESTAR", "Crayon Pop", "The Ark", "Dal Shabet", "Boyfriend"
+            ],
+            "K-Pop-Boy": [
+                "BTS", "EXO", "SEVENTEEN", "NCT 127", "NCT DREAM", "WayV", "Stray Kids", "TXT (Tomorrow X Together)", "ATEEZ", "ENHYPEN",
+                "MONSTA X", "TREASURE", "SHINee", "Super Junior", "BIGBANG", "WINNER", "iKON", "GOT7", "BTOB", "VIXX", "ASTRO", "SF9",
+                "The Boyz", "P1Harmony", "CIX", "Golden Child", "WEi", "ONEUS", "Pentagon", "CRAVITY", "TEMPEST", "TNX", "ZEROBASEONE",
+                "Highlight (formerly BEAST)", "INFINITE", "Teen Top", "Block B", "2PM", "U-KISS", "MBLAQ",
+                "Taemin (SHINee)", "G-Dragon (BIGBANG)", "J-Hope (BTS)", "RM (BTS)", "Suga (Agust D, BTS)", "Jin (BTS)", "Jungkook (BTS)", "V (BTS)",
+                "Kai (EXO)", "Baekhyun (EXO)", "Kang Daniel (formerly of Wanna One)", "Lay Zhang (EXO)", "Jay Park", "Jackson Wang (GOT7)",
+                "BamBam (GOT7)", "Taeyang (BIGBANG)", "Wonho (formerly of MONSTA X)", "Hyunseung (formerly of BEAST)", "Dean", "Eric Nam"
+            ],
+            "K-Pop-Girls": [
+                "BLACKPINK", "TWICE", "Red Velvet", "Girls' Generation (SNSD)", "Wonder Girls", "KARA", "f(x)", "SISTAR", "Mamamoo", "GFRIEND",
+                "ITZY", "EXID", "AOA", "T-ARA", "Apink", "CLC", "Lovelyz", "IZ*ONE", "Oh My Girl", "LOONA", "WJSN (Cosmic Girls)", "STAYC",
+                "MAMAMOO", "Miss A", "9MUSES", "SECRET", "After School", "Brown Eyed Girls", "2NE1", "Crayon Pop", "4Minute", "Girls Day", "Red Velvet",
+                "Pristin", "The Ark", "FIESTAR", "RAINBOW", "Girl's Day", "BLACKPINK", "Dreamcatcher", "Weki Meki", "Kep1er", "LE SSERAFIM", "New Jeans", "(G)I-DLE"
+            ],
+              "Rappers": [
+                "Tupac Shakur", "The Notorious B.I.G.", "Nas", "Jay-Z", "Eminem", "Snoop Dogg", "Dr. Dre", "Ice Cube", "Rakim", "Big Daddy Kane", 
+                "Kendrick Lamar", "Drake", "Lil Wayne", "Future", "Travis Scott", "Cardi B", "Megan Thee Stallion", "Nicki Minaj", "J. Cole", 
+                "A$AP Rocky", "Wu-Tang Clan", "OutKast", "Run-D.M.C.", "Public Enemy", "N.W.A", "Kanye West", "Migos", "Lil Uzi Vert", "Lil Yachty", 
+                "Lil Nas X", "Tyler, The Creator", "Chance the Rapper", "Joey Bada$$", "Vince Staples", "Mac Miller", "Logic", "Post Malone", 
+                "Big Sean", "Jay Electronica", "Busta Rhymes", "Ludacris", "Bone Thugs-n-Harmony", "Common", "Slick Rick", "Nas", "Ice-T", "RZA", 
+                "Method Man", "Ghostface Killah", "The Game", "A Tribe Called Quest", "Queen Latifah", "Salt-N-Pepa", "Missy Elliott", "Eve", 
+                "Lauryn Hill", "M.I.A.", "Kid Cudi", "The Roots", "Anderson .Paak", "Joey Bada$$", "Saba", "Isaiah Rashad", "JID", "Mick Jenkins", 
+                "Denzel Curry", "IDK", "Vince Staples", "Brockhampton", "EarthGang", "Run the Jewels", "Migos", "Travis Scott", "Lil Peep", 
+                "Mac Miller"
+            ],
+            "Europe": [
+                "Austria", "Belgium", "France", "Germany", "Liechtenstein", "Luxembourg", "Monaco", "Netherlands", "Switzerland", "Albania", 
+                "Andorra", "Bosnia and Herzegovina", "Croatia", "Greece", "Italy", "Kosovo", "Malta", "North Macedonia", "Poland", "Portugal", 
+                "Romania", "Serbia", "Slovakia", "Slovenia", "Spain", "Sweden", "Ukraine", "United Kingdom", "Czech Republic", "Hungary", "Estonia", 
+                "Latvia", "Lithuania", "Cyprus", "Georgia", "Armenia", "Azerbaijan"
+            ],
+            "Americas": [
+                "Argentina", "Bolivia", "Brazil", "Chile", "Colombia", "Ecuador", "Guyana", "Paraguay", "Peru", "Suriname", "Uruguay", "Venezuela", 
+                "Belize", "Costa Rica", "El Salvador", "Guatemala", "Honduras", "Nicaragua", "Panama", "United States", "Canada", "Mexico", 
+                "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", 
+                "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", 
+                "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", 
+                "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", 
+                "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
+            ],
+   
+          "Bad Girls Club": [
+        "Vanessa", "Nikki", "Aimee", "Tyra", "Nina", "Sarah", "Judi", "Char", "Iesha", "Tiffany", "Kendra", 
+        "Jen", "Brandi", "Kourtney", "Kayla", "Rebecca", "Tanisha", "Rima", "Lea", "Sarah", "Kendra", "Cynthia", 
+        "Natalie", "Brittany", "Tiffany", "Flo", "Aimee", "Amber", "Brandi", "Morgan", "Catya", "Shannon", "Judi", 
+        "Ashley", "Kendra", "Amber", "Zuly", "Sarah", "Kris", "Jealousy", "Tanisha", "Ariane", "Natalie", "Tasha", 
+        "Claudia", "Falen", "Kristen", "Melissa", "Julie", "Shanae", "Gia", "Zoe", "Mariah", "Christina", "Zina", 
+        "Jodi", "Mehgan", "Danielle", "Kristen", "Sabrina", "Shannon", "Valentina", "Brandi", "Andrea", "Jade", "Nina", 
+        "Erika", "Falen", "Andrea", "Aja", "Shannon", "Kori", "Camilla", "Christina", "Shannon", "Nastasia", "Dani", 
+        "Leslie", "Azusa", "Jasmine", "Janelle", "Morgan", "Michelle", "Nydia", "Shannon", "Cynthia", "Devin", "Kristen", 
+        "Valentina", "Britni", "Shannon", "Jill", "Jodie", "Brandi", "Kayla", "Johanna", "Amber", "Jaselynn", "Janelle", 
+        "Kailie", "Sarah", "Melissa", "Sam", "Krista", "Cheryl", "Damaris", "Danielle", "Dominique", "Jazmyn", "Krystal", 
+        "Mekhi", "Kamilla"
+    ],
+    "Actors": [
+        "Sidney Poitier", "Harry Belafonte", "Ruby Dee", "Ossie Davis", "Cicely Tyson", "Diahann Carroll", 
+        "Paul Robeson", "Hattie McDaniel", "Eartha Kitt", "Dorothy Dandridge", "James Earl Jones", "Richard Pryor", 
+        "Lena Horne", "Louis Gossett Jr.", "Pam Grier", "Morgan Freeman", "Danny Glover", "Whoopi Goldberg", 
+        "Samuel L. Jackson", "Laurence Fishburne", "Denzel Washington", "Viola Davis", "Angela Bassett", "Lupita Nyong’o", 
+        "Chadwick Boseman", "Michael B. Jordan", "Halle Berry", "Will Smith", "Jada Pinkett Smith", "Idris Elba", 
+        "Octavia Spencer", "Regina King", "Taraji P. Henson", "Mahershala Ali", "Tessa Thompson", "Lakeith Stanfield", 
+        "Zendaya", "John Boyega", "Daniel Kaluuya", "Letitia Wright", "Eddie Murphy", "Kevin Hart", "Chris Rock", 
+        "Martin Lawrence", "Dave Chappelle", "Tiffany Haddish", "Tracy Morgan", "Regina Hall", "Marlon Wayans", 
+        "Damon Wayans", "Keegan-Michael Key", "Jordan Peele", "Katt Williams", "Wanda Sykes", "Leslie Jones", "Mo'Nique", 
+        "Jamie Foxx", "Cedric the Entertainer", "Niecy Nash", "Richard Roundtree", "Kerry Washington", "Shonda Rhimes", 
+        "Sterling K. Brown", "Donald Glover", "Tracee Ellis Ross", "Anthony Anderson", "Gabrielle Union", "Terrence Howard", 
+        "Taraji P. Henson", "Phylicia Rashad", "Debbie Allen", "Sonequa Martin-Green", "Danai Gurira", "Aisha Tyler", 
+        "Mekhi Phifer", "Queen Latifah", "Omari Hardwick", "Sanaa Lathan", "Alfre Woodard", "Blair Underwood", 
+        "Jharrel Jerome", "Caleb McLaughlin", "Storm Reid", "Marsai Martin", "Keke Palmer", "Skai Jackson", "Amandla Stenberg", 
+        "Yara Shahidi", "Coco Jones", "Jabari Banks", "Asante Blackk", "Hailey Kilgore", "Tyler James Williams", 
+        "Jaden Smith", "Shahadi Wright Joseph", "Jacob Latimore", "Dominique Fishback", "Maitreyi Ramakrishnan", 
+        "Quincy Isaiah", "Sofia Wylie", "Lupita Nyong’o", "Idris Elba", "John Boyega", "Daniel Kaluuya", "Chiwetel Ejiofor", 
+        "Sophie Okonedo", "Thuso Mbedu", "Nomzamo Mbatha", "Michaela Coel", "Adjoa Andoh", "David Oyelowo", "Amma Asante", 
+        "Gugu Mbatha-Raw", "Letitia Wright", "Oti Mabuse", "Jimmy Jean-Louis", "Carmen Ejogo", "Eamonn Walker", "Malachi Kirby", 
+        "Omar Sy", "Beyoncé", "Rihanna", "Drake", "Queen Latifah", "Jamie Foxx", "Jennifer Hudson", "Usher", "Mary J. Blige", 
+        "Tyrese Gibson", "Brandy", "Chris Brown", "Donald Glover", "Will Smith", "Ice Cube", "Ice-T", "Common", "LL Cool J", 
+        "Ludacris", "Eve", "Janelle Monáe"
+    ],
+    "Companies": [
+        "Apple", "Microsoft", "Google", "Amazon", "Facebook", "Tesla", "Intel", "Samsung", "Sony", "IBM", "Oracle", 
+        "Nvidia", "Adobe", "Salesforce", "Cisco Systems", "Spotify", "Snap Inc.", "Twitter", "TikTok", "Uber", "Lyft", 
+        "Pinterest", "LinkedIn", "Zoom", "Square", "Dropbox", "Shopify", "TikTok", "Xiaomi", "Alibaba", "Huawei", "PayPal", 
+        "AMD", "ARM Holdings", "Red Hat", "Electronic Arts", "Dell Technologies", "Uber Technologies", "Roku", "Spotify", 
+        "Pinterest", "Slack Technologies", "Atlassian", "Zoom Video Communications", "Pinterest", "Roblox", "Walmart", 
+        "Target", "Costco", "Home Depot", "Lowe's", "Macy's", "Kohl's", "Best Buy", "Amazon", "IKEA", "Walgreens", 
+        "CVS Health", "Sephora", "Nordstrom", "J.C. Penney", "H&M", "Zara", "ASOS", "Uniqlo", "Forever 21", "Kroger", 
+        "Whole Foods Market", "Alibaba", "Etsy", "Aldi", "Carrefour", "7-Eleven", "Gap Inc.", "Bed Bath & Beyond", "Foot Locker", 
+        "JPMorgan Chase", "Bank of America", "Wells Fargo", "Citigroup", "Goldman Sachs", "Morgan Stanley", "American Express", 
+        "PayPal", "AIG", "Allianz", "Berkshire Hathaway", "MetLife", "Prudential", "BlackRock", "State Farm", "Fidelity Investments", 
+        "Vanguard Group", "Zurich Insurance Group", "Travelers", "Charles Schwab", "Johnson & Johnson", "Pfizer", "Merck & Co.", 
+        "Novartis", "Roche", "AstraZeneca", "GSK", "AbbVie", "Eli Lilly", "Bristol Myers Squibb", "Abbott Laboratories", "Amgen", 
+        "Sanofi", "Bayer", "Medtronic", "Cigna", "UnitedHealth Group", "Humana", "Cardinal Health", "CVS Health", "Tesla", 
+        "Toyota", "Ford", "General Motors", "Honda", "BMW", "Mercedes-Benz", "Volkswagen", "Audi", "Nissan", "Hyundai", "Kia", 
+        "Porsche", "Ferrari", "Lamborghini", "Rolls-Royce", "Bentley", "Subaru", "Fiat Chrysler Automobiles", "Rivian", "Disney", 
+        "Warner Bros.", "Universal Pictures", "Sony Pictures", "Paramount Global", "Netflix", "Hulu", "Amazon Prime Video", 
+        "ViacomCBS", "BBC", "ESPN", "Comcast", "AMC Theatres", "Lionsgate", "MGM Studios", "21st Century Fox", "Discovery", 
+        "DreamWorks Animation", "Nintendo", "Activision Blizzard", "ExxonMobil", "Chevron", "Royal Dutch Shell", "BP", "TotalEnergies", 
+        "ConocoPhillips", "Gazprom", "Schlumberger", "E.ON", "NextEra Energy", "Duke Energy", "Dominion Energy", "National Grid", 
+        "Enel", "Siemens Energy", "Shell", "Equinor", "PSEG", "Constellation Energy", "Southern Company", "Caterpillar", "Boeing", 
+        "Lockheed Martin", "Raytheon Technologies", "Northrop Grumman", "General Dynamics", "Harris", "Leidos", "L3Harris", 
+        "Huntington Ingalls Industries", "Textron", "Hewlett-Packard", "Oracle", "SAP", "Cisco Systems", "VMware", "Siemens", 
+        "Rockwell Automation", "Schneider Electric", "Honeywell", "Emerson Electric", "Johnson Controls", "3M", "GE"
+    ]
+}
+
+# Now the dictionary contains the additional categories as requested
+
+        };
+
+        let selectedCategory = "";
+        let team1Score = 0;
+        let team2Score = 0;
+        let usedCards = [];
+
+        function selectCategory(category) {
+            selectedCategory = category;
+            document.getElementById("category-name").textContent = category;
+        }
+
+        function startGame() {
+            if (!selectedCategory) {
+                alert("Please select a category first!");
+                return;
+            }
+
+            let categoryCards = cards[selectedCategory];
+            let randomCard = categoryCards[Math.floor(Math.random() * categoryCards.length)];
+
+            document.getElementById("card").textContent = randomCard;
+        }
+
+        function passCard(team) {
+            if (!selectedCategory) {
+                alert("Please select a category first!");
+                return;
+            }
+
+            let categoryCards = cards[selectedCategory];
+            let randomCard = categoryCards[Math.floor(Math.random() * categoryCards.length)];
+
+            usedCards.push(randomCard);
+            document.getElementById("used-cards").textContent = `Used Cards: ${usedCards.join(", ")}`;
+
+            if (team === "team1") {
+                team1Score++;
+                document.getElementById("team1-points").textContent = team1Score;
+            } else {
+                team2Score++;
+                document.getElementById("team2-points").textContent = team2Score;
+            }
+        }
+
+        function failCard() {
+            usedCards.push(document.getElementById("card").textContent);
+            document.getElementById("used-cards").textContent = `Used Cards: ${usedCards.join(", ")}`;
+        }
+
+        function resetRound() {
+            team1Score = 0;
+            team2Score = 0;
+            usedCards = [];
+            document.getElementById("team1-points").textContent = team1Score;
+            document.getElementById("team2-points").textContent = team2Score;
+            document.getElementById("used-cards").textContent = "Used Cards: ";
+            document.getElementById("card").textContent = "Your card will appear here!";
+        }
+
+        function startCustomTimer() {
+            let time = document.getElementById("custom-time").value;
+            document.getElementById("time").textContent = time;
+
+            let countdown = setInterval(function() {
+                time--;
+                document.getElementById("time").textContent = time;
+                if (time <= 0) {
+                    clearInterval(countdown);
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
